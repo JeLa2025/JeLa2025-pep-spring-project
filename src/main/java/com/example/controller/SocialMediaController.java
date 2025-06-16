@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -40,7 +41,7 @@ public class SocialMediaController {
 
     // POST /register
     @PostMapping("register")
-    public ResponseEntity<Account> registerAccount(@RequestParam Account account) {
+    public ResponseEntity<Account> registerAccount(@RequestBody Account account) {
         Account registeredAccount = accountService.register(account);
 
         HttpStatus response_status;
@@ -55,7 +56,7 @@ public class SocialMediaController {
 
     // POST /login
     @PostMapping("login")
-    public ResponseEntity<Account> loginAccount(@RequestParam Account account) {
+    public ResponseEntity<Account> loginAccount(@RequestBody Account account) {
         Account loginSuccess = accountService.login(account);
 
         HttpStatus response_Status;
@@ -70,16 +71,13 @@ public class SocialMediaController {
 
     // POST /messages
     @PostMapping("messages")
-    public ResponseEntity<Message> postMessage(@RequestParam Message message) {
+    public ResponseEntity<Message> postMessage(@RequestBody Message message) {
         Message newMessage = messageService.post(message);
-        
-        HttpStatus response_Status;
         if (newMessage == null) {
-            response_Status = HttpStatus.BAD_REQUEST;
-        } else {
-            response_Status = HttpStatus.OK;
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(newMessage);
         }
-        return ResponseEntity.status(response_Status).body(newMessage);
+        return ResponseEntity.status(HttpStatus.OK).body(newMessage);
+
     }
 
     // GET /messages
@@ -115,8 +113,7 @@ public class SocialMediaController {
 
     // PATCH /messages/{message_id}
     @PatchMapping("messages/{message_id}")
-    public ResponseEntity<Integer> patchMessageById(@PathVariable (value="message_id", required = true) Integer message_id, 
-                                                    @RequestParam (name = "messageText", required = false, defaultValue = "") String newText) {
+    public ResponseEntity<Integer> patchMessageById(@PathVariable Integer message_id, @RequestBody String newText) {
        
         Message rowsUpdated = messageService.patchMessage(message_id, newText);
         HttpStatus response_Status;
