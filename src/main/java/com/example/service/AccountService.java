@@ -65,8 +65,4 @@ public class AccountService {
     public List<Message> getMessageByUser(Integer account_id) {
         return messageRepository.findMessageByPostedBy(account_id);
     }
-
-    public List<Account> getAllAccount() {
-        return accountRepository.findAll();
-    }
 }
