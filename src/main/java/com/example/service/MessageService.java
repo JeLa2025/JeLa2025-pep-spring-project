@@ -74,15 +74,15 @@ public class MessageService {
 
     // 7) Our API should be albe toupdate a message text given a message id
     @Transactional
-    public Message patchMessage(Integer message_id, String newText) {
-        Message message = getMessageById(message_id);
+    public Message patchMessage(Integer message_id, Message message) {
         // validate message
-        boolean isNewTextValid = messageChecker(newText);
+        boolean isNewTextValid = messageChecker(message.getMessageText());
+        Message updateMessage = getMessageById(message_id);
 
         // if the new message is valid and the message with id exists in the table
-        if (isNewTextValid && message != null) {
-            message.setMessageText(newText);
-            return messageRepository.save(message);
+        if (isNewTextValid && updateMessage != null) {
+            updateMessage.setMessageText(message.getMessageText());
+            return messageRepository.save(updateMessage);
         }
         return null;
     }

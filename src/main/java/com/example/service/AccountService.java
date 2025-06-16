@@ -1,6 +1,7 @@
 package com.example.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import javax.transaction.Transactional;
 
@@ -41,10 +42,10 @@ public class AccountService {
         boolean isValidName = userNameAndPasswordCheck(username, password);
 
         // check if account already exists by username
-        Account alreadyExists = accountRepository.findAccountByUsername(username);
+        Account doesExists = accountRepository.findAccountByUsername(username);
 
         // username and password is valid, user doesn't exist in the table
-        if (isValidName && alreadyExists == null) {
+        if (isValidName && doesExists == null) {
             Account newAccount = new Account(username, password);
             return accountRepository.save(newAccount);
         }
@@ -52,7 +53,7 @@ public class AccountService {
     }
 
     // 2) Our API should be albe to process User logins
-    public Account login(Account account) {
+    public Optional<Account> login(Account account) {
         String username = account.getUsername();
         String password = account.getPassword();
 
@@ -63,5 +64,9 @@ public class AccountService {
     // 8) Our API should be able to retrieve all messages written by a particular user
     public List<Message> getMessageByUser(Integer account_id) {
         return messageRepository.findMessageByPostedBy(account_id);
+    }
+
+    public List<Account> getAllAccount() {
+        return accountRepository.findAll();
     }
 }

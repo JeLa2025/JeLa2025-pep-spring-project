@@ -1,6 +1,7 @@
 package com.example.controller;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -11,7 +12,6 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.entity.Account;
@@ -56,17 +56,19 @@ public class SocialMediaController {
 
     // POST /login
     @PostMapping("login")
-    public ResponseEntity<Account> loginAccount(@RequestBody Account account) {
-        Account loginSuccess = accountService.login(account);
+    public ResponseEntity<Account> login(@RequestBody Account account) {
+        Optional<Account> loginSuccess = accountService.login(account);
 
-        HttpStatus response_Status;
-        if (loginSuccess == null) {
-            response_Status = HttpStatus.UNAUTHORIZED;
+        HttpStatus response_status;
+        Account response_body;
+        if (loginSuccess.isPresent()) {
+            response_body = loginSuccess.get();
+            response_status = HttpStatus.OK;
         } else {
-            response_Status = HttpStatus.OK;
+            response_status = HttpStatus.UNAUTHORIZED;
+            response_body = null;
         }
-
-        return ResponseEntity.status(response_Status).body(account);
+        return ResponseEntity.status(response_status).body(response_body);
     }
 
     // POST /messages
@@ -77,7 +79,6 @@ public class SocialMediaController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(newMessage);
         }
         return ResponseEntity.status(HttpStatus.OK).body(newMessage);
-
     }
 
     // GET /messages
@@ -94,7 +95,6 @@ public class SocialMediaController {
     public ResponseEntity<Message> getMessageById(@PathVariable Integer message_id) {
         Message message = messageService.getMessageById(message_id);
         return ResponseEntity.status(HttpStatus.OK).body(message);
-        
     }
 
     // DELETE /messages/{message_id}
@@ -108,14 +108,13 @@ public class SocialMediaController {
             response_body = 1;
         }
         return ResponseEntity.status(HttpStatus.OK).body(response_body);
-
     }
 
     // PATCH /messages/{message_id}
     @PatchMapping("messages/{message_id}")
-    public ResponseEntity<Integer> patchMessageById(@PathVariable Integer message_id, @RequestBody String newText) {
-       
-        Message rowsUpdated = messageService.patchMessage(message_id, newText);
+    public ResponseEntity<Integer> patchMessageById(@PathVariable Integer message_id, @RequestBody Message message) {
+        
+        Message rowsUpdated = messageService.patchMessage(message_id, message);
         HttpStatus response_Status;
         if (rowsUpdated != null) {
             response_Status = HttpStatus.OK;
@@ -124,7 +123,6 @@ public class SocialMediaController {
         }
         response_Status = HttpStatus.BAD_REQUEST;
         return ResponseEntity.status(response_Status).body(null);
-        
     }
 
     // GET /accounts/{account_id}/messages
